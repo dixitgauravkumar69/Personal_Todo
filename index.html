@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TODO</title>
+  <style>
+  :root {
+    --primary: #3f51b5;
+    --primary-dark: #303f9f;
+    --success: #4caf50;
+    --success-dark: #43a047;
+    --warning: #ff9800;
+    --warning-dark: #fb8c00;
+    --danger: #f44336;
+    --danger-dark: #e53935;
+    --bg: #f4f6f8;
+    --card-bg: #ffffff;
+    --hover-bg: #eef1f5;
+    --font-color: #333;
+    --font-sub: #666;
+  }
+
+  * {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background: linear-gradient(135deg, var(--primary) 30%, #7986cb 100%);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    min-height: 100vh;
+    color: var(--font-color);
+  }
+
+  .main {
+    background-color: var(--card-bg);
+    padding: 30px 25px;
+    border-radius: 16px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 550px;
+    animation: fadeIn 0.5s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  header h1 {
+    font-size: 2.2rem;
+    color: var(--primary);
+    letter-spacing: 1px;
+  }
+
+  h2 {
+    font-size: 1.3rem;
+    color: var(--font-sub);
+    margin-bottom: 15px;
+  }
+
+  #task-list {
+    list-style: none;
+    margin-bottom: 30px;
+    padding: 0;
+  }
+
+  #task-list li {
+    background-color: #fdfdfd;
+    margin-bottom: 12px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 5px solid var(--primary);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+  }
+
+  #task-list li:hover {
+    background-color: var(--hover-bg);
+    transform: scale(1.01);
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-group button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: white;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .btn-group button:hover {
+    transform: scale(1.05);
+  }
+
+  .done-btn { background-color: var(--success); }
+  .done-btn:hover { background-color: var(--success-dark); }
+
+  .skip-btn { background-color: var(--warning); }
+  .skip-btn:hover { background-color: var(--warning-dark); }
+
+  .delete-btn { background-color: var(--danger); }
+  .delete-btn:hover { background-color: var(--danger-dark); }
+
+  #task-input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    margin-bottom: 12px;
+    transition: border 0.2s ease;
+  }
+
+  #task-input:focus {
+    border-color: var(--primary);
+    outline: none;
+  }
+
+  #task-form button {
+    width: 100%;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+
+  #task-form button:hover {
+    background-color: var(--primary-dark);
+    transform: scale(1.02);
+  }
+
+  @media (max-width: 600px) {
+    .main {
+      padding: 20px 18px;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+    }
+
+    .btn-group button {
+      padding: 5px 8px;
+      font-size: 0.8rem;
+    }
+
+    #task-input, #task-form button {
+      font-size: 0.95rem;
+    }
+  }
+</style>
+
+</head>
+<body>
+  <main class="main">
+    <header class="header">
+      <h1>TODO APP</h1>
+    </header>
+    
+    <section class="todo-list">
+      <h2>My Tasks</h2>
+      <ul id="task-list"></ul>
+    </section>
+
+    <section class="add-task">
+      <h2>Add New Task</h2>
+      <form id="task-form">
+        <input type="text" id="task-input" placeholder="Enter a new task" required />
+        <button type="submit">Add Task</button>
+      </form>
+    </section>
+  </main>
+
+ <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const taskForm = document.getElementById('task-form');
+    const taskInput = document.getElementById('task-input');
+    const taskList = document.getElementById('task-list');
+
+    // 🔒 Generate hash from task list
+    function generateHash(tasks) {
+      return btoa(unescape(encodeURIComponent(JSON.stringify(tasks))));
+    }
+
+    // 🔒 Validate local storage tasks against saved hash
+    function validateHash(tasks, storedHash) {
+      const currentHash = generateHash(tasks);
+      return currentHash === storedHash;
+    }
+
+    // 🔒 Load tasks with hash check
+    let tasks = [];
+    const savedTasks = localStorage.getItem('tasks');
+    const savedHash = localStorage.getItem('tasks_hash');
+
+    if (savedTasks && savedHash) {
+      try {
+        const parsedTasks = JSON.parse(savedTasks);
+        if (!validateHash(parsedTasks, savedHash)) {
+          alert("⚠ Task data was modified. Resetting to prevent misuse.");
+          localStorage.removeItem('tasks');
+          localStorage.removeItem('tasks_hash');
+        } else {
+          tasks = parsedTasks;
+        }
+      } catch (e) {
+        alert("⚠ Invalid task format in localStorage. Resetting.");
+        localStorage.removeItem('tasks');
+        localStorage.removeItem('tasks_hash');
+      }
+    }
+
+    renderTasks();
+
+    taskForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+      const taskText = taskInput.value.trim();
+
+      if (taskText) {
+        const exists = tasks.some(task => task.toLowerCase() === taskText.toLowerCase());
+
+        if (exists) {
+          const confirmAdd = confirm(`⚠ This task already exists.\n\nDo you still want to add it again?`);
+          if (!confirmAdd) {
+            return;
+          }
+        }
+
+        tasks.push(taskText);
+        saveTasks();
+        taskInput.value = '';
+        renderTasks();
+      }
+    });
+
+    // 🔒 Save tasks and secure with hash
+    function saveTasks() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      localStorage.setItem('tasks_hash', generateHash(tasks));
+    }
+
+    function renderTasks() {
+      taskList.innerHTML = '';
+      tasks.forEach((task, index) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = task;
+
+        const buttonGroup = document.createElement('div');
+        buttonGroup.classList.add('btn-group');
+
+        const doneBtn = document.createElement('button');
+        doneBtn.textContent = 'Done';
+        doneBtn.classList.add('done-btn');
+        doneBtn.addEventListener('click', () => {
+          tasks.splice(index, 1);
+          saveTasks();
+          renderTasks();
+        });
+
+        const skipBtn = document.createElement('button');
+        skipBtn.textContent = 'Skip';
+        skipBtn.classList.add('skip-btn');
+        skipBtn.addEventListener('click', () => {
+          const skipped = tasks.splice(index, 1)[0];
+          tasks.push(skipped);
+          saveTasks();
+          renderTasks();
+        });
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.classList.add('delete-btn');
+        deleteBtn.addEventListener('click', () => {
+          tasks.splice(index, 1);
+          saveTasks();
+          renderTasks();
+        });
+
+        buttonGroup.appendChild(doneBtn);
+        buttonGroup.appendChild(skipBtn);
+        buttonGroup.appendChild(deleteBtn);
+        listItem.appendChild(buttonGroup);
+        taskList.appendChild(listItem);
+      });
+    }
+  });
+</script>
+
+
+
+
+</body>
+</html>
