@@ -203,18 +203,18 @@
     const taskInput = document.getElementById('task-input');
     const taskList = document.getElementById('task-list');
 
-    // 🔒 Generate hash from task list
+    // Generate hash from task list
     function generateHash(tasks) {
       return btoa(unescape(encodeURIComponent(JSON.stringify(tasks))));
     }
 
-    // 🔒 Validate local storage tasks against saved hash
+    // Validate local storage tasks against saved hash
     function validateHash(tasks, storedHash) {
       const currentHash = generateHash(tasks);
       return currentHash === storedHash;
     }
 
-    // 🔒 Load tasks with hash check
+    // Load tasks with hash check
     let tasks = [];
     const savedTasks = localStorage.getItem('tasks');
     const savedHash = localStorage.getItem('tasks_hash');
